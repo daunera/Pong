@@ -17,7 +17,7 @@ static SDL_Color kek = { 5, 165,  215};
 static SDL_Color sarga = { 235, 200,  10};
 
 //FELBONTÁS - 4:3-as arány
-static int szelesseg = 1024;
+static int szelesseg = 1366;
 static int magassag = 768;
 
 //Ez a függvény mindent alaphelyzetbe állít
@@ -278,13 +278,14 @@ void input_text(Uint16 *dest, int x0, int y0, int sz, int m, SDL_Color hatter, S
 
         clear (screen);
         if (*menu == 1 && cpu == 1)
-            felirat_rajzolo(screen, "ADJA MEG A JÁTÉKOS NEVÉT:", font, 25, magassag/2-100, zold);
+            felirat_rajzolo(screen, "PLAYER'S NAME", font, screen_text_centered_pos(screen_text_length(11,1)), magassag/2-100, zold);
         else if (*menu == 1 && cpu == 0)
-            felirat_rajzolo(screen, "ADJA MEG AZ ELSÖ JÁTÉKOS NEVÉT:", font, 25,magassag/2-100, zold);
+            felirat_rajzolo(screen, "PLAYER ONE NAME", font, screen_text_centered_pos(screen_text_length(13,1)),magassag/2-100, zold);
         else if (*menu == 2)
-            felirat_rajzolo(screen, "ADJA MEG A MÁSODIK JÁTÉKOS NEVÉT:", font, 25, magassag/2-100, sarga);
+            felirat_rajzolo(screen, "PLAYER TWO NAME", font, screen_text_centered_pos(screen_text_length(13,1)), magassag/2-100, sarga);
 
-        felirat_rajzolo(screen, "TOVÁBB LÉPNI AZ 'ENTER' LENYOMÁSÁVAL LEHET", font, 200, magassag-60, feher);
+
+        felirat_rajzolo(screen, "CONTINUE WITH (ENTER)", font, screen_text_centered_pos(screen_text_length(17,1)), magassag-60, feher);
 
         /* szoveg kirajzolasa */
         boxRGBA(screen, x, y, x+sz-1, y+m-1, hatter.r, hatter.g, hatter.b, 255);
@@ -305,13 +306,15 @@ void input_text(Uint16 *dest, int x0, int y0, int sz, int m, SDL_Color hatter, S
                     case '\r':
                     case '\n':
                         /* enter: bevitel vege */
-                        enter = 1;
-                        if (*menu == 1 && cpu == 1)
-                            *menu = 3;
-                        else if (*menu == 1 && cpu == 0)
-                            *menu = 2;
-                        else if (*menu == 2)
-                            *menu = 3;
+                        if (hossz>0){
+                            enter = 1;
+                            if (*menu == 1 && cpu == 1)
+                                *menu = 3;
+                            else if (*menu == 1 && cpu == 0)
+                                *menu = 2;
+                            else if (*menu == 2)
+                                *menu = 3;
+                        }
                         break;
                     case '\b':
                         /* backspace: torles visszafele, ha van karakter */
@@ -416,14 +419,16 @@ void rank_kiiras(SDL_Surface *screen, ranklist *first, TTF_Font *font_40){
         sprintf(s1, "%d.", i);
         sprintf(s2, "%d pont  - ", first->point);
 
-        felirat_rajzolo(screen, s1, font_40, 120, (100+i*40), feher);
-        felirat_rajzolo(screen, s2, font_40, 180, (100+i*40), feher);
-        felirat_rajzolo(screen, first->name, font_40, 380, (100+i*40), feher);
+        felirat_rajzolo(screen, s1, font_40, 120, (120+i*40), feher);
+        felirat_rajzolo(screen, s2, font_40, 180, (120+i*40), feher);
+        felirat_rajzolo(screen, first->name, font_40, 380, (120+i*40), feher);
 
         free(s1);
         free(s2);
 
-        //SDL_Flip(screen);
+        ranklist* tmp = first->next;
+        if (tmp == NULL)
+            i = 11;
 
         first = first->next;
         i++;
@@ -492,4 +497,22 @@ void timer (int *ms, int *min){
     }
     else
     *ms += 1;
+}
+
+int screen_text_length(int text_length, int size){
+    int small_text_base = 25;
+    int medium_text_base= 35;
+    int big_text_base   = 50;
+
+    if (size == 1)
+        return small_text_base * text_length;
+    else if (size == 2)
+        return medium_text_base * text_length;
+    else
+        return big_text_base * text_length;
+}
+
+int screen_text_centered_pos(int screen_text_length){
+    int centered_start_pos = (szelesseg - screen_text_length) / 2;
+    return centered_start_pos;
 }

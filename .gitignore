@@ -1,6 +1,6 @@
-bin/*
-obj/*
-*.depend
-*.layout
-*.layout.save-failed
-*.txt
+*
+!*.h
+!*.c
+!*.TTF
+!*.txt
+!*.cbp

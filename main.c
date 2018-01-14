@@ -16,13 +16,11 @@ static SDL_Color zold = { 5, 215,  100};
 static SDL_Color kek = { 5, 165,  215};
 static SDL_Color sarga = { 235, 200,  10};
 
-//FELBONTÁS - 4:3-as arány
-static int szelesseg = 1024;
+//FELBONTÁS - képarány
+static int szelesseg = 1366;
 static int magassag = 768;
 
-
-
-// EZT a függvényt hívja meg az idõzítõ, beilleszt az események közé egy usereventet is
+//Ezt a függvényt hívja meg az idõzítõ, beilleszt az események közé egy usereventet is
 Uint32 idozit(Uint32 ms, void *param){
     SDL_Event ev;
     ev.type = SDL_USEREVENT;
@@ -59,10 +57,10 @@ int main(int argc, char *argv[]) {
 
     //menüváltozók
     int menu = 0;
-    int cpu = 0; //van-e számitógépes ellenfél
+    int bot = 0; //van-e számitógépes ellenfél
     int nehez = 0; //van-e nehezített mód
-    int cpu_szint = 1; //milyen nehézségű a számítógépes ellenfél
-    int jatekos_p, nehez_p, cpu_szint_p;
+    int bot_szint = 1; //milyen nehézségű a számítógépes ellenfél
+    int jatekos_p, nehez_p, bot_szint_p;
 
     int ms=0, min=0;
 
@@ -118,65 +116,67 @@ int main(int argc, char *argv[]) {
                         reset_pontok(&counter);
 
                         //kilépés jelző
-                        boxRGBA(screen, szelesseg-10, 10, szelesseg-230, 58, voros.r,voros.g, voros.b, 255); //háttér
-                        felirat_rajzolo(screen, "(Q) - KILÉPÉS", font_40, szelesseg-228, 13, feher);
+                        //boxRGBA(screen, szelesseg-10, 10, szelesseg-230, 58, voros.r,voros.g, voros.b, 255); //háttér
+                        felirat_rajzolo(screen, "(Q) - EXIT", font_40, szelesseg-12-screen_text_length(7,1), 13, voros);
 
                         //eredmény jelző
-                        boxRGBA(screen, 10, 10, 280, 58, kek.r, kek.g, kek.b, 255); //háttér
-                        felirat_rajzolo(screen, "(E) - EREDMÉNY", font_40, 12, 13, feher);
+                        //boxRGBA(screen, 10, 10, 280, 58, kek.r, kek.g, kek.b, 255); //háttér
+                        felirat_rajzolo(screen, "(E) - SCORES", font_40, 12, 13, kek);
 
-                        //JELÖLŐ PONTOK
+                        SDL_Color player_num1_color = feher;
+                        SDL_Color player_num2_color = feher;
+                        SDL_Color hard_mode_off_color = feher;
+                        SDL_Color hard_mode_on_color = feher;
+
                         //jatékosok száma
-                        if (cpu == 0)
-                            jatekos_p = szelesseg/4+530;
-                        else if (cpu == 1)
-                            jatekos_p = szelesseg/4+480;
-                        pont_rajzolo(screen, jatekos_p, 400, 8, zold); //kirajzolja a pontot
+                        if (bot == 0)
+                            player_num2_color = zold;
+                        else if (bot == 1)
+                            player_num1_color = zold;
 
                         //nehezített mod
                         if (nehez == 0)
-                            nehez_p = szelesseg/4+480;
+                            hard_mode_off_color = zold;
                         else if (nehez == 1)
-                            nehez_p = szelesseg/4+580;
-                        pont_rajzolo(screen, nehez_p, 480, 8, zold); //kirajzolja a pontot
+                            hard_mode_on_color = zold;
 
                         //SZÖVEGFELIRATOK
 
-                        felirat_rajzolo(screen, "PONG", font_100, szelesseg/3+70, 100, feher); //címfelirat
-                        felirat_rajzolo(screen, "(ENTER) - INDÍTÁS", font_70, szelesseg/4, 220, feher); //indítás
+                        felirat_rajzolo(screen, "PONG", font_100, screen_text_centered_pos(screen_text_length(4,3)), 100, feher); //címfelirat
+                        felirat_rajzolo(screen, "(ENTER) - START", font_70, screen_text_centered_pos(screen_text_length(13,2)), 220, feher); //indítás
 
-                        felirat_rajzolo(screen, "(1) - JÁTÉKOSOK SZÁMA:", font_40, szelesseg/4, 400, feher);
-                        felirat_rajzolo(screen, "1", font_40, szelesseg/4+480, 400, feher);
-                        felirat_rajzolo(screen, "2", font_40, szelesseg/4+530, 400, feher);
+                        felirat_rajzolo(screen, "(1) - PLAYERS NUMBER:", font_40, szelesseg/4, 400, feher);
+                        felirat_rajzolo(screen, "1", font_40, szelesseg/4+480, 400, player_num1_color);
+                        felirat_rajzolo(screen, "2", font_40, szelesseg/4+530, 400, player_num2_color);
 
-                        felirat_rajzolo(screen, "(2) - NEHEZÍTETT MÓD:", font_40, szelesseg/4, 480, feher);
-                        felirat_rajzolo(screen, "NEM", font_40, szelesseg/4+480, 480, feher);
-                        felirat_rajzolo(screen, "IGEN", font_40, szelesseg/4+580, 480, feher);
+                        felirat_rajzolo(screen, "(2) - HARD MODE:", font_40, szelesseg/4, 480, feher);
+                        felirat_rajzolo(screen, "OFF", font_40, szelesseg/4+480, 480, hard_mode_off_color);
+                        felirat_rajzolo(screen, "ON", font_40, szelesseg/4+580, 480, hard_mode_on_color);
 
-                        if (cpu == 1){
-                            //jelölő pont
-                            if (cpu_szint == 0)
-                                cpu_szint_p = szelesseg/4+480;
-                            else if (cpu_szint == 1)
-                                cpu_szint_p = szelesseg/4+530;
-                            else if (cpu_szint == 2)
-                                cpu_szint_p = szelesseg/4+580;
-
-                            pont_rajzolo(screen, cpu_szint_p, 560, 8, zold );
+                        if (bot == 1){
+                            felirat_rajzolo(screen, "(3) - BOT DIFFICULTY:", font_40, szelesseg/4, 560, feher);
+                            SDL_Color bot_lvl1_color = feher;
+                            SDL_Color bot_lvl2_color = feher;
+                            SDL_Color bot_lvl3_color = feher;
+                            //kiválasztott jelöltés
+                            if (bot_szint == 0)
+                                bot_lvl1_color = zold;
+                            else if (bot_szint == 1)
+                                bot_lvl2_color = zold;
+                            else if (bot_szint == 2)
+                                bot_lvl3_color = zold;
 
                             //szöveg
-
-                            felirat_rajzolo(screen, "(3) - CPU NEHÉZSÉGE:", font_40, szelesseg/4, 560, feher);
-                            felirat_rajzolo(screen, "1", font_40, szelesseg/4+480, 560, feher);
-                            felirat_rajzolo(screen, "2", font_40, szelesseg/4+530, 560, feher);
-                            felirat_rajzolo(screen, "3", font_40, szelesseg/4+580, 560, feher);
+                            felirat_rajzolo(screen, "1", font_40, szelesseg/4+480, 560, bot_lvl1_color);
+                            felirat_rajzolo(screen, "2", font_40, szelesseg/4+530, 560, bot_lvl2_color);
+                            felirat_rajzolo(screen, "3", font_40, szelesseg/4+580, 560, bot_lvl3_color);
                         }
                     }
                     if (menu == 1){
-                            input_text(player1_name, 1024/2, 768/2, 400, 40, fekete, feher, font_40, screen, &menu, cpu);
+                        input_text(player1_name, szelesseg/2, magassag/2, 400, 40, fekete, feher, font_40, screen, &menu, bot);
                     }
                     if (menu == 2){
-                        input_text(player2_name, 1024/2, 768/2, 400, 40, fekete, feher, font_40, screen, &menu, cpu);
+                        input_text(player2_name, szelesseg/2, magassag/2, 400, 40, fekete, feher, font_40, screen, &menu, bot);
                     }
                     if (menu == 3){
                         for(i=magassag/10;i <= magassag-magassag/10; i += magassag/20)
@@ -184,10 +184,10 @@ int main(int argc, char *argv[]) {
 
                         uto_rajzolo(screen, &Uto1, zold, start);
 
-                        if (cpu == 0)
+                        if (bot == 0)
                             uto_rajzolo(screen, &Uto2, sarga, start);
-                        else if (cpu == 1)
-                            cpu_rajzolo(screen, &Uto2, ball, voros, cpu_szint);
+                        else if (bot == 1)
+                            cpu_rajzolo(screen, &Uto2, ball, voros, bot_szint);
                         if (nehez == 1)
                             boxRGBA(screen, akadaly.x1, akadaly.y1, akadaly.x2, akadaly.y2, feher.r, feher.g, feher.b, 255);
 
@@ -203,13 +203,13 @@ int main(int argc, char *argv[]) {
 
                         felirat_rajzolo(screen, player1_pts, font_40, 10, 10, zold);
                         felirat_rajzolo_uint16(screen, player1_name, font_40, 60, 10, zold);
-                        if (cpu == 0){
+                        if (bot == 0){
                             felirat_rajzolo(screen, player2_pts, font_40, szelesseg/2+10, magassag-60, sarga);
                             felirat_rajzolo_uint16(screen, player2_name, font_40, szelesseg/2+60, magassag-60, sarga);
                         }
-                        else if (cpu == 1){
+                        else if (bot == 1){
                             felirat_rajzolo(screen, player2_pts, font_40, szelesseg/2+10, magassag-60, voros);
-                            felirat_rajzolo(screen, "CPU", font_40, szelesseg/2+60, magassag-60, voros);
+                            felirat_rajzolo(screen, "BOT", font_40, szelesseg/2+60, magassag-60, voros);
                         }
                         if (start == 0){
                             felirat_rajzolo(screen, "SPACE - START", font_40, 10, magassag-60,feher);
@@ -227,27 +227,26 @@ int main(int argc, char *argv[]) {
                         boxRGBA(screen, 0, magassag-magassag/11, szelesseg, magassag-magassag/12, feher.r, feher.g, feher.b, 255); // alsó sáv
 
                         //kilépés jelző
-                        boxRGBA(screen, szelesseg-10, 10, szelesseg-230, 58, 210,100, 90, 255); //háttér
-                        felirat_rajzolo(screen, "(Q) - MENÜ", font_40, szelesseg-228, 13, feher);
+                        //boxRGBA(screen, szelesseg-10, 10, szelesseg-230, 58, 210,100, 90, 255); //háttér
+                        felirat_rajzolo(screen, "(Q) - MENU", font_40, szelesseg-12-screen_text_length(7,1), 13, voros);
 
-                        game_end(&counter, cpu, cpu_szint, nehez, &point, min, ms);
+                        game_end(&counter, bot, bot_szint, nehez, &point, min, ms);
                     }
                     if (menu == 4){
 
                         //kilépés jelző
-                        boxRGBA(screen, szelesseg-10, 10, szelesseg-230, 58, 210,100, 90, 255); //háttér
-                        felirat_rajzolo(screen, "(Q) - MENÜ", font_40, szelesseg-228, 13, feher);
+                        felirat_rajzolo(screen, "(Q) - MENU", font_40, szelesseg-12-screen_text_length(7,1), 13, voros);
 
-                        game_end(&counter, cpu, cpu_szint, nehez ,&point, min, ms);
+                        game_end(&counter, bot, bot_szint, nehez ,&point, min, ms);
 
                         char *point_str;
                         point_str = (char*) malloc (5*sizeof(char));
 
                         sprintf(point_str, "%d", point);
 
-                        if (cpu == 1 && counter.player2 == 10)
+                        if (bot == 1 && counter.player2 == 10)
                             felirat_rajzolo(screen, "SAJNOS MOST VESZTETTÉL!", font_70, szelesseg/6,magassag/2-35, voros);
-                        else if (cpu == 0 && counter.player2 == 10){
+                        else if (bot == 0 && counter.player2 == 10){
                             felirat_rajzolo(screen, "GRATULÁLUNK", font_70 , szelesseg/6, magassag/2-35, feher);
                             felirat_rajzolo(screen, "NYERTÉL!", font_70, szelesseg/3, magassag/2+50, feher);
                             //pontszám kiírása
@@ -269,12 +268,11 @@ int main(int argc, char *argv[]) {
                         }
                     }
                     if (menu == 5){
-                        felirat_rajzolo(screen, "EREDMÉNYEK", font_100, 12, 12, feher);
+                        felirat_rajzolo(screen, "HIGH SCORES", font_70, screen_text_centered_pos(screen_text_length(10,2)), 32, feher);
                         //kilépés jelző
-                        boxRGBA(screen, szelesseg-10, 10, szelesseg-230, 58, 210,100, 90, 255); //háttér
-                        felirat_rajzolo(screen, "(Q) - MENÜ", font_40, szelesseg-228, 13, feher);
+                        felirat_rajzolo(screen, "(Q) - MENU", font_40, szelesseg-12-screen_text_length(7,1), 13, voros);
 
-                        felirat_rajzolo(screen, "készítette: DAUNER ÁGOSTON", font_40, 500, magassag-60, kek);
+                        felirat_rajzolo(screen, "CREATOR: ÁGOSTON DAUNER", font_40, szelesseg-12-screen_text_length(22,1), magassag-60, sarga);
 
                         rank_kiiras(screen, first, font_40);
                     }
@@ -293,7 +291,7 @@ int main(int argc, char *argv[]) {
 
                 case SDL_KEYDOWN:
                     switch (event.key.keysym.sym){
-                            //Q illentyû lenyomására kilép
+                            //Q billentyû lenyomására kilép
                             case SDLK_q:
                                 if (menu == 0)
                                     quit = 1;
@@ -335,27 +333,27 @@ int main(int argc, char *argv[]) {
                                 //TESZTHEZ SZÜKSÉGES BILLENTYŰK
                                 case SDLK_c: //játékmód váltás 1 személy és 2 személyes között
                                     if (menu == 3){
-                                        if (cpu == 0){
-                                            cpu = 1;
+                                        if (bot == 0){
+                                            bot = 1;
                                         }
-                                        else if (cpu == 1){
-                                            cpu = 0;
+                                        else if (bot == 1){
+                                            bot = 0;
                                         }
                                     }
                                     break;
                                 case SDLK_v: //cpu könnyű szinten
                                     if (menu == 3){
-                                        cpu_szint=0;
+                                        bot_szint=0;
                                     }
                                     break;
                                 case SDLK_b: //cpu közép szinten
                                     if (menu == 3){
-                                        cpu_szint=1;
+                                        bot_szint=1;
                                     }
                                     break;
                                 case SDLK_n: //cpu nehez szinten
                                     if (menu == 3){
-                                        cpu_szint=2;
+                                        bot_szint=2;
                                     }
                                     break;
                                 case SDLK_m: //nehezített mód teszt
@@ -396,11 +394,11 @@ int main(int argc, char *argv[]) {
 
                                 //ÜTÕ2 irányítása fel és le irányba
                                 case SDLK_UP:
-                                    if (cpu == 0)
+                                    if (bot == 0)
                                         Uto2.irany = 1;
                                     break;
                                 case SDLK_DOWN:
-                                    if (cpu == 0)
+                                    if (bot == 0)
                                         Uto2.irany = -1;
                                     break;
                             }
@@ -413,10 +411,10 @@ int main(int argc, char *argv[]) {
                                     break;
                                 case SDLK_1: //hány ellenfél
                                     if (menu == 0){
-                                        if (cpu == 1)
-                                            cpu = 0;
+                                        if (bot == 1)
+                                            bot = 0;
                                         else
-                                        cpu++;
+                                        bot++;
                                     }
                                     break;
                                 case SDLK_2: //nehézségi szint
@@ -431,11 +429,11 @@ int main(int argc, char *argv[]) {
                                     break;
                                 case SDLK_3: //cpu nehézsége
                                     if (menu == 0){
-                                        if (cpu == 1){
-                                            if (cpu_szint == 2)
-                                                cpu_szint = 0;
+                                        if (bot == 1){
+                                            if (bot_szint == 2)
+                                                bot_szint = 0;
                                             else
-                                                cpu_szint++;
+                                                bot_szint++;
                                         }
                                     }
                                     break;
@@ -458,11 +456,11 @@ int main(int argc, char *argv[]) {
 
                                 // ÜTÕ2 megáll
                                 case SDLK_UP:
-                                    if (cpu == 0)
+                                    if (bot == 0)
                                         Uto2.irany = 0;
                                     break;
                                 case SDLK_DOWN:
-                                    if (cpu == 0)
+                                    if (bot == 0)
                                         Uto2.irany = 0;
                                     break;
                             }

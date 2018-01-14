@@ -112,4 +112,7 @@ void rank_felszabadit (ranklist *r);
 //idő számolóo
 void timer (int *ms, int *min);
 
+int screen_text_length(int text_length, int size);
+int screen_text_centered_pos(int screen_text_length);
+
 #endif
